@@ -1,57 +1,62 @@
+function rotation(){}
+function avrage(){}
 var  on = false;
 var Ruuvitag = require("Ruuvitag");
-var x = [];
-var y = [];
-var z = [];
-var i =0;
-var wall = "bład";
- Ruuvitag.setAccelOn(true);
+
+var previousWall = 0;
+Ruuvitag.setAccelOn(true);
 setInterval(function() {
   on = !on;
-rotation();
-  //console.log(Ruuvitag.getAccelData().x);
- //console.log(Ruuvitag.getAccelData());
+  rotation();
   LED1.write(on);
-}, 1000);
+}, 500);
 
 
 
 function rotation(){
-x[i] = Ruuvitag.getAccelData().x;
-y[i] = Ruuvitag.getAccelData().y;
-z[i] = Ruuvitag.getAccelData().z;
-//console.log(Ruuvitag.getAccelData());
+var acc=Ruuvitag.getAccelData();
 
   
-var xAvg =0;
-var yAvg =0;
-var zAvg =0;
-if(x.length>2){
-  console.log(i);
- xAvg = avrage(x);
- yAvg = avrage(y);
- zAvg = avrage(z);
-}
+var x = acc.x;
+var y = acc.y;
+var z = acc.z;
+var wall;
 
-if(( 30 < xAvg < 90) && ( 45<yAvg<105) && (980<zAvg<1040) ){
-  wall = 'jestem na scianie 1';
-}
-if(( (-670) <xAvg< (-610)) && ((-755)<yAvg<(-695)) && (55<zAvg<115) ){
-  wall = 'jestem na scianie 2';
-}
-console.log(wall, xAvg, yAvg, zAvg);
+
+var xAbs = Math.abs(x);
+var yAbs = Math.abs(y);
+var zAbs = Math.abs(z);
   
-if(i == 9){i=0;}
-i++;
+var max = Math.max(xAbs, yAbs, zAbs);
+
+if(max ==xAbs){
+  if(x>0){
+    wall = 6;
+  }  else{
+    wall = 5;
+  }
+}
+else if(max ==yAbs){
+  if(y>0){
+    wall = 4;
+  }  else{
+    wall = 2;
+  }
+}
+else if(max ==zAbs){
+  if(z>0){
+    wall = 1;
+  }  else{
+    wall = 3;
+  }
 }
 
-function avrage(arr){
-// console.log(arr);
-    var sum = 0;
-  for (step =0; step< arr.length; step++){
-   sum +=  arr[step];
-//    console.log(sum);
-      }
-  sum -=  (Math.max.apply(null,arr)+ Math.min.apply(null,arr));
-  return sum/(arr.length-2);
+
+  
+if((previousWall != wall)){
+  console.log('jestem na scianie ' + wall);
+  previousWall = wall;
+}
+
+
 }
