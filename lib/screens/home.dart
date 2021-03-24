@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kostka/bluetoothService.dart';
 import 'package:kostka/screens/settings.dart';
 import 'package:kostka/screens/today.dart';
 import 'package:kostka/screens/week.dart';
+import 'package:provider/provider.dart';
 
 
 class Home extends StatefulWidget {
@@ -37,16 +39,21 @@ class _HomeState extends State<Home> {
   );
 
   Widget buildPageView() {
-    return PageView(
-      controller: pageController,
-      onPageChanged: (index) {
-        pageChanged(index);
+    return Consumer<BluetoothService>( // ten widget ci wystawia potrzebne zależności i może wywołać przebudowanie jak one się np. zmienią
+      builder: (context, btService, child) {
+        return PageView(
+          controller: pageController,
+          onPageChanged: (index) {
+            pageChanged(index);
+          },
+          children: <Widget>[
+            Today(),
+            Week(),
+            Settings(btService),
+          ],
+        );
       },
-      children: <Widget>[
-        Today(),
-        Week(),
-        Settings(),
-      ],
+
     );
   }
 

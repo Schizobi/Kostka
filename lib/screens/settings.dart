@@ -3,16 +3,21 @@ import 'package:flutter/material.dart';
 import '../bluetoothService.dart';
 
 class Settings extends StatefulWidget {
+
+  final BluetoothInterface bt; // tu w tym miejscu widok ma zupełnie wywalone co implementuje komunikację bt,
+
+  Settings(this.bt);
+
   @override
   _SettingsState createState() => _SettingsState();
 }
 
 
 class _SettingsState extends State<Settings> {
-    BluetoothService bt = new BluetoothService();
+
   ListView _buildListViewOfDevices() {
     List<Container> containers = <Container>[];
-    for (var device in bt.devicesList) {
+    for (var device in widget.bt.devices) {
       containers.add(
         Container(
           height: 50,
@@ -22,7 +27,7 @@ class _SettingsState extends State<Settings> {
                 child: Column(
                   children: <Widget>[
                     Text(device.name == '' ? '(unknown device)' : device.name),
-                    Text(device.id.toString()),
+                    Text(device.id),
                   ],
                 ),
               ),
@@ -48,12 +53,12 @@ class _SettingsState extends State<Settings> {
 @override
   void initState() {
     super.initState();
-    bt.startScan();
+    widget.bt.startScan();
   }
 @override
   void dispose() {
     super.dispose();
-    bt.stopScan();
+    widget.bt.stopScan();
   }
 
   @override
