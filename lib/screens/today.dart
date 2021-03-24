@@ -9,7 +9,8 @@ class Today extends StatefulWidget {
 }
 
 class _TodayState extends State<Today> {
-  String _timeString;
+   String _timeString= '';
+
 
   @override
   void initState() {
@@ -17,13 +18,18 @@ class _TodayState extends State<Today> {
     Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
   }
 
+
   void _getTime() {
     final String formattedDateTime =
     //DateFormat('yyyy-MM-dd \n kk:mm:ss').format(DateTime.now()).toString();
     DateFormat(' kk:mm:ss').format(DateTime.now()).toString();
-    setState(() {
-      _timeString = formattedDateTime;
-    });
+    if (mounted) {
+      setState(
+              () {
+            _timeString = formattedDateTime;
+          }
+      );
+    }
   }
 
 

@@ -13,6 +13,8 @@ class _HomeState extends State<Home> {
   int bottomSelectedIndex = 0;
 
   List<BottomNavigationBarItem> buildBottomNavBarItems() {
+
+
     return [
       BottomNavigationBarItem(
           icon: new Icon(Icons.home),
@@ -53,17 +55,29 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
+
+
   void pageChanged(int index) {
-    setState(() {
-      bottomSelectedIndex = index;
-    });
+      setState(
+              () {
+            bottomSelectedIndex = index;
+          }
+      );
+
   }
 
   void bottomTapped(int index) {
-    setState(() {
-      bottomSelectedIndex = index;
-      pageController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.ease);
-    });
+      setState(
+              () {
+            bottomSelectedIndex = index;
+            pageController.animateToPage(
+                index, duration: Duration(
+                milliseconds: 500
+            ), curve: Curves.ease
+            );
+          }
+      );
+
   }
 
   @override
