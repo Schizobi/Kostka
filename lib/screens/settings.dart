@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../bluetoothService.dart';
 
 class Settings extends StatefulWidget {
-
-  final BluetoothInterface bt; // tu w tym miejscu widok ma zupełnie wywalone co implementuje komunikację bt,
+  final BluetoothInterface
+      bt; // tu w tym miejscu widok ma zupełnie wywalone co implementuje komunikację bt,
 
   Settings(this.bt);
 
@@ -12,50 +12,97 @@ class Settings extends StatefulWidget {
   _SettingsState createState() => _SettingsState();
 }
 
-
 class _SettingsState extends State<Settings> {
 
-  ListView _buildListViewOfDevices() {
-    List<Container> containers = <Container>[];
-    for (var device in widget.bt.devices) {
-      containers.add(
-        Container(
-          height: 50,
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Column(
-                  children: <Widget>[
-                    Text(device.name == '' ? '(unknown device)' : device.name),
-                    Text(device.id),
-                  ],
+  IconData icon = Icons.cancel_presentation;
+
+
+  Widget connect() {
+    return       Container(
+      height: 90,
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Column(
+              children: <Widget>[
+                Text(widget.bt.devices[0].name),
+                Text(widget.bt.devices[0].id.toString()),
+              ],
+            ),
+          ),
+
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 160.0),
+                child: FlatButton(
+                  color: Colors.blue,
+                  child: Text(
+                    'Connect',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () async {
+
+                    for (var device in widget.bt.devices) {
+                      widget.bt.stopScan();
+                      try {
+                        widget.bt.connect(device);
+                      } catch (e) {
+                        if (e != 'already_connected') {
+                          throw e;
+                        }
+                      }
+                      setState(() {
+                        widget.bt.connectedDevice = device;
+                        icon = Icons.check;
+                      });
+                    }
+                  },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: Icon(icon),
+              ),
+
             ],
           ),
-        ),
-      );
-    }
-
-    return ListView(
-      padding: const EdgeInsets.all(8),
-      children: <Widget>[
-        ...containers,
-      ],
+        ],
+      ),
     );
   }
 
-
-  ListView _buildView() {
-    return _buildListViewOfDevices();
+  Widget search() {
+    return Container(
+      child: FlatButton(
+        color: Colors.blue,
+        child: Text(
+          'Szukaj Kostki',
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () async {
+          widget.bt.startScan();
+          connect();
+        },
+      ),
+    );
   }
 
-@override
+  Widget _buildView() {
+    if (widget.bt.devices.length != 0) {
+      return  connect();
+    } else {
+      return search();
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
-    widget.bt.startScan();
+    print(widget.bt.devices.length);
   }
-@override
+
+  @override
   void dispose() {
     super.dispose();
     widget.bt.stopScan();
@@ -64,10 +111,9 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-          child: _buildView(),
-        ),
+      body: Center(
+        child: _buildView(),
+      ),
     );
   }
 }
-
