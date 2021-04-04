@@ -20,15 +20,15 @@ class _HomeState extends State<Home> {
     return [
       BottomNavigationBarItem(
           icon: new Icon(Icons.home),
-          title: new Text('Today')
+          label: 'Today'
       ),
       BottomNavigationBarItem(
         icon: new Icon(Icons.settings),
-        title: new Text('Settings'),
+        label: 'Settings',
       ),
       BottomNavigationBarItem(
           icon: Icon(Icons.access_time),
-          title: Text('Week')
+          label: 'Week'
       )
     ];
   }
@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
   );
 
   Widget buildPageView() {
-    return Consumer<BluetoothService>( // ten widget ci wystawia potrzebne zależności i może wywołać przebudowanie jak one się np. zmienią
+    return Consumer<BluetoothServiceX>( // ten widget ci wystawia potrzebne zależności i może wywołać przebudowanie jak one się np. zmienią
       builder: (context, btService, child) {
         return PageView(
           controller: pageController,

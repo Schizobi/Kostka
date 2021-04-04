@@ -8,7 +8,7 @@ void main() {
       debugShowCheckedModeBanner: false,
       home: MultiProvider(
           providers: [
-            Provider<BluetoothService>(create: (_) => BluetoothService()) // tutaj raz stworzy się ten serwis i będzie dostępny gdziekolwiek niżej w drzewie poprzez widget consumer
+            ChangeNotifierProvider<BluetoothServiceX>(create: (_) => BluetoothServiceX()) // tutaj raz stworzy się ten serwis i będzie dostępny gdziekolwiek niżej w drzewie poprzez widget consumer
           ],
           child: Home()))
   );
