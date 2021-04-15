@@ -10,22 +10,27 @@ class EventLog {
   final DateTime start;
   final DateTime end;
   final String type;
-  EventInProgress finishEvent;
+
   final DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
   String get formattedStart => dateFormat.format(start);
   String get formattedEnd => dateFormat.format(end);
 
   // konstruktor domyślny
-  EventLog(this.start, this.end, this.type, this.finishEvent);
+  EventLog(this.start, this.end, this.type);
 
+  factory EventLog.fromProgress(EventInProgress event){
+    return EventLog(event.start, DateTime.now(), event.type);
+  }
 
-  factory EventLog.fromJson2(Map<String, dynamic> map) {
-    return EventLog(map[START], map[END], map[TYPE], map['finishEvent']);
+  factory EventLog.fromJson(Map<String, dynamic> map) {
+    var start = DateTime.fromMillisecondsSinceEpoch(map[START]);
+    var end = DateTime.fromMillisecondsSinceEpoch(map[END]);
+    return EventLog(start, end, map[TYPE]);
   }
 
   Map<String, dynamic> toJson() => {
-        START: formattedStart,
-        END: end,
+        START: start.millisecondsSinceEpoch,
+        END: end.millisecondsSinceEpoch,
         TYPE: type,
       };
 }

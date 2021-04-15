@@ -1,31 +1,33 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kostka/events/event_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Today extends StatefulWidget {
+
+  final EventManager manager;
+
+  const Today(this.manager);
+
   @override
   _TodayState createState() => _TodayState();
 }
 
 class _TodayState extends State<Today> {
    String _timeString= '';
-   String _haveStarted3Times = '';
 
 
   @override
   void initState() {
     super.initState();
     Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
-    _incrementStartup();
   }
 
 
   void _getTime() {
-    final String formattedDateTime =
-    //DateFormat('yyyy-MM-dd \n kk:mm:ss').format(DateTime.now()).toString();
-    DateFormat(' kk:mm:ss').format(DateTime.now()).toString();
+    final String formattedDateTime = DateFormat(' kk:mm:ss').format(DateTime.now()).toString();
     if (mounted) {
       setState(
               () {
@@ -37,39 +39,6 @@ class _TodayState extends State<Today> {
 
 
 
-   Future<int> _getIntFromSharedPref() async {
-     final prefs = await SharedPreferences.getInstance();
-     final startupNumber = prefs.getInt('startupNumber');
-     if (startupNumber == null) {
-       return 0;
-     }
-     return startupNumber;
-   }
-
-
-   Future<void> _resetCounter() async {
-     final prefs = await SharedPreferences.getInstance();
-     await prefs.setInt('startupNumber', 0);
-   }
-
-
-   Future<void> _incrementStartup() async {
-     final prefs = await SharedPreferences.getInstance();
-
-     int lastStartupNumber = await _getIntFromSharedPref();
-     int currentStartupNumber = ++lastStartupNumber;
-
-     await prefs.setInt('startupNumber', currentStartupNumber);
-
-     if (currentStartupNumber == 3) {
-       setState(() => _haveStarted3Times = '$currentStartupNumber Times Completed');
-       
-       await _resetCounter();
-     } else {
-       setState(() => _haveStarted3Times = '$currentStartupNumber Times started the app');
-     }
-   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,9 +49,15 @@ class _TodayState extends State<Today> {
                   _timeString.toString()
               ),
               Text(
-                _haveStarted3Times,
+                "Strona:${widget.manager.currentEdge}",
                 style: TextStyle(fontSize: 32),
               ),
+              Expanded(
+                child: ListView(
+                  children: widget.manager.getTodayEvents().map<Widget>((e) => Text(e.start.toString())).toList(),
+
+                ),
+              )
             ],
           ),
         )

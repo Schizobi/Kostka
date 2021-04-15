@@ -8,19 +8,21 @@ class EventInProgress {
   final DateTime start;
   final String type;
   final DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+  final DateFormat timeFormat = DateFormat("HH:mm:ss");
   String get formattedStart => dateFormat.format(start);
-  Duration get timeNow => DateTime.now().difference(start);
-  format(String formattedTimeNow) => timeNow.toString().split('.').first.padLeft(8, "0");
+  Duration get duration => DateTime.now().difference(start);
+  String get durationFormatted => timeFormat.format(DateTime.fromMillisecondsSinceEpoch(duration.inMilliseconds));
 
   EventInProgress(this.start, this.type);
 
 
-  factory EventInProgress.fromJson2(Map<String, dynamic> map) {
-    return EventInProgress(map[START], map[TYPE]);
+  factory EventInProgress.fromJson(Map<String, dynamic> map) {
+    var start = DateTime.fromMillisecondsSinceEpoch(map[START]);
+    return EventInProgress(start, map[TYPE]);
   }
 
   Map<String, dynamic> toJson() => {
-    START: formattedStart,
+    START: start.millisecondsSinceEpoch,
     TYPE: type,
   };
 }
