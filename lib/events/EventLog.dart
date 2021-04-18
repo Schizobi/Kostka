@@ -33,4 +33,7 @@ class EventLog {
         END: end.millisecondsSinceEpoch,
         TYPE: type,
       };
+  Duration getEventDuration(){
+    return end.difference(start);
+  }
 }
