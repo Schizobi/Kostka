@@ -6,6 +6,7 @@ abstract class EventDB{
 
   List<EventLog> getEvents(DateTimeRange range);
    EventInProgress getEventInProgress();
+   void clearEventInProgress();
    bool hasEventInProgress();
    void setEventInProgress(String type);
    void addEvent(EventLog event);

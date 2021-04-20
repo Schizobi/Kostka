@@ -6,34 +6,66 @@ class EventRow extends StatelessWidget {
   EventRow(this.eventLog);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      child: Container(
+        height: 40,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-        children: <Widget>[
-          AspectRatio(child: Icon(Icons.forward),aspectRatio: 1,),
-          Expanded(
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Text>[
-                      Text(eventLog.type),
-                      Text(printDuration(eventLog.getEventDuration())),
-                    ],
+          children: <Widget>[
+            AspectRatio(child: Icon(Icons.forward),aspectRatio: 1,),
+            Expanded(
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0,0,15,0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Text>[
+                          Text(eventLog.type),
+                          Text(printDuration(eventLog.getEventDuration())),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                Divider(),
-              ],
+                  Container(
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: getTaskColor(int.parse(eventLog.type)),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
+Color getTaskColor(int edge){
+  switch(edge){
+
+    case 1:
+      return Colors.red;
+    case 2:
+      return Colors.green;
+    case 3:
+      return Colors.blue;
+    case 4:
+      return Colors.pink;
+    case 5:
+      return Colors.yellow;
+    case 6:
+      return Colors.teal;
+    default:
+      return Colors.white;
+  }
+}
+
+
 String printDuration(Duration duration) {
   String twoDigits(int n) => n.toString().padLeft(2, "0");
   String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));

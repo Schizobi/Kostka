@@ -124,18 +124,17 @@ class _HomeState extends State<Home> {
             // ten widget ci wystawia potrzebne zależności i może wywołać przebudowanie jak one się np. zmienią
             builder: (context, btService, child) {
           if (bottomSelectedIndex == 0) {
-            return AppBar(title: Text("Home screen"), actions: <Widget>[
-              TextButton.icon(
+            return AppBar(title: Text("Kostka"), actions: <Widget>[
+              if(btService.isConnected) Icon(Icons.check, color: Colors.white),
+              if(btService.isScanning) CircularProgressIndicator(),
+              if(!btService.isConnected && !btService.isScanning) TextButton.icon(
 
                   onPressed: () async {
                     btService.startScan();
-                    _showToast();
                   },
-                  icon: btService.isConnected
-                      ? Icon(Icons.check, color: Colors.white)
-                      : Icon(Icons.play_arrow, color: Colors.white),
-                  label: btService.isConnected ? Text('Połączono', style: TextStyle(color: Colors.white)): Text('Szukaj kostki', style: TextStyle(color: Colors.white)),
-              )
+                  icon: Icon(Icons.error, color: Colors.white),
+                  label: Text('Połącz', style: TextStyle(color: Colors.white))
+              ),
             ]);
           } else {
             return AppBar(
@@ -156,11 +155,11 @@ class _HomeState extends State<Home> {
               em.stop();
             }
           },
-          label: em.isPaused
+          label: em.isPaused || !em.hasCurrentEvent()
               ? Text("start")
-              : Counter(em.getCurrentTask().start, em.currentTaskName),
-          icon: Icon(em.isPaused ? Icons.play_arrow : Icons.stop),
-          backgroundColor: em.isPaused ? Colors.green : Colors.red,
+              : Counter(em.getCurrentEvent().start, em.getTaskName(em.currentEdge)),
+          icon: Icon(em.isPaused || !em.hasCurrentEvent()? Icons.play_arrow : Icons.stop),
+          backgroundColor: em.getTaskColor(em.currentEdge),
         );
       }),
       bottomNavigationBar: BottomNavigationBar(

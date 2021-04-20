@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:kostka/events/event_manager.dart';
 import 'package:kostka/view/event_row.dart';
 
@@ -23,23 +21,37 @@ class _TodayState extends State<Today> {
   }
 
 
-
+  ScrollController scrollController = ScrollController();
 
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance!
+        .addPostFrameCallback((_) {
+      scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 300),
+      );
+    }
+    );
+
     return Scaffold(
         body: Center(
           child: Column(
             children: [
               Text(
-                "Strona:${widget.manager.currentEdge}",
+                widget.manager.currentEdge==0 ? "":"Strona:${widget.manager.currentEdge}",
                 style: TextStyle(fontSize: 32),
               ),
               Expanded(
-                child: ListView(
-                  children: widget.manager.getTodayEvents().map<Widget>((e) => EventRow(e)).toList(),
-
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0,0,0,70),
+                  child: ListView(
+                    shrinkWrap: true,
+                    controller: scrollController,
+                    children: widget.manager.getTodayEvents().map<Widget>((e) => EventRow(e)).toList(),
+                  ),
                 ),
               )
             ],

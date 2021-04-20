@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -7,7 +9,9 @@ abstract class BluetoothInterface {
   // interfejs określający łączność bt
   bool get hasDevice;
   bool get isConnected;
+  bool get isConnecting;
   bool get isScanning;
+  String get name;
   BluetoothDeviceInterface? connectedDevice;
   void startScan();
   void stopScan();
@@ -33,15 +37,50 @@ class BluetoothServiceX extends ChangeNotifier implements BluetoothInterface  {
   bool isScanning = false;
   bool isConnected = false;
   bool hasDevice = false;
+  bool isConnecting = false;
   int edge=0;
+
+  final StreamController<int> edgeStreamController = StreamController<int>();
+  Stream<int> get edgeStream => edgeStreamController.stream.asBroadcastStream();
+
 
   final FlutterBlue _flutterBlue = FlutterBlue.instance;
   BluetoothDeviceInterface? connectedDevice;
 
+
+  BluetoothServiceX(){
+    startScan();
+  }
+  String get name => ruuviDevice != null ? ruuviDevice!.name:"";
+  FlutterBlueDevice? ruuviDevice;
+
+  StreamSubscription? btMessagesSubscription;
+
   Future<void> _connect(FlutterBlueDevice device)async{
+
     await device.connect();
-    isConnected=true;
-    notifyListeners();
+    device.device.state.listen((state) {
+      switch(state) {
+        case BluetoothDeviceState.disconnected:
+          isConnected = false;
+          ruuviDevice = null;
+          notifyListeners();
+          break;
+        case BluetoothDeviceState.connecting:
+          isConnecting = true;
+          break;
+        case BluetoothDeviceState.connected:
+          isConnected = true;
+          isConnecting = false;
+          notifyListeners();
+          break;
+        case BluetoothDeviceState.disconnecting:
+        //??
+          break;
+      }
+    });
+
+
     List<BluetoothService> services = await device.device.discoverServices();
     services.forEach((service) {
       if(service.uuid.toString()=="3e440001-f5bb-357d-719d-179272e4d4d9"){
@@ -49,9 +88,13 @@ class BluetoothServiceX extends ChangeNotifier implements BluetoothInterface  {
         for(BluetoothCharacteristic c in characteristics) {
           if(c.uuid.toString()=="3e440002-f5bb-357d-719d-179272e4d4d9"){
             c.setNotifyValue(true);
-            c.value.listen((value) {
-              edge=value[0];
-              notifyListeners();
+            btMessagesSubscription?.cancel();
+            btMessagesSubscription = c.value.listen((value) {
+              if(value.isNotEmpty) {
+                edge = value[0];
+                print("BT RECEIVED ${value[0]}");
+                edgeStreamController.add(edge);
+              }
               // do something with new value
             });
           }
@@ -59,6 +102,7 @@ class BluetoothServiceX extends ChangeNotifier implements BluetoothInterface  {
         }
       }
     });
+
   }
 
   // List<BluetoothService> services = await device.discoverServices();
@@ -74,7 +118,8 @@ class BluetoothServiceX extends ChangeNotifier implements BluetoothInterface  {
         if (result.device.name.split(' ')[0].toLowerCase() == 'ruuvitag') {
           hasDevice=true;
           notifyListeners();
-          _connect(FlutterBlueDevice(result.device));
+          ruuviDevice = FlutterBlueDevice(result.device);
+          _connect(ruuviDevice!);
           stopScan();
         }
       }
@@ -85,10 +130,17 @@ class BluetoothServiceX extends ChangeNotifier implements BluetoothInterface  {
   @override
   void stopScan() {
     _flutterBlue.stopScan();
+    btMessagesSubscription?.cancel();
     isScanning=false;
     notifyListeners();
   }
 
+  @override
+  void dispose() {
+    stopScan();
+    edgeStreamController.close();
+    super.dispose();
+  }
 
 
 

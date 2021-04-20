@@ -15,13 +15,16 @@ void main() async{
   EventDB db = SharedPreferencesDB(prefs);
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
+
       home: MultiProvider(
           providers: [
-
             ChangeNotifierProvider<BluetoothServiceX>(create: (_) => BluetoothServiceX()),
             ChangeNotifierProxyProvider<BluetoothServiceX,EventManager>(create:  (_) => EventManager(db), update: (_, bt, e)  {
-              e!.setEdge(bt.edge);
-              return e;
+              if(bt.isConnected) {
+                print("SET STREAM");
+                e!.setEdgeStream(bt.edgeStream);
+              }
+              return e!;
               },)// tutaj raz stworzy się ten serwis i będzie dostępny gdziekolwiek niżej w drzewie poprzez widget consumer
           ],
           child: Home()))

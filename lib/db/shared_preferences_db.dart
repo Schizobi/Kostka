@@ -25,6 +25,10 @@ class SharedPreferencesDB implements EventDB{
     return pref.containsKey(CURRENT_KEY);
   }
 
+  @override
+  void clearEventInProgress() {
+    pref.remove(CURRENT_KEY);
+  }
 
   @override
   EventInProgress getEventInProgress() {
@@ -75,6 +79,8 @@ class SharedPreferencesDB implements EventDB{
       }
     return list;
   }
+
+
 
 
 
